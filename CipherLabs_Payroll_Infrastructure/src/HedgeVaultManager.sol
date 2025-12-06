@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-// NOTE: Upgradeability disabled for testnet. Uncomment imports for mainnet.
+// NOTE: Upgradeability disabled for testnet. Using standard Ownable.
 // import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 // import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -293,8 +293,7 @@ contract HedgeVaultManager is
         returns (uint256 stableReceived, uint256 volatileReceived)
     {
         // Only payroll contracts from the factory should be able to call this
-        // For testing purposes, we'll allow calls from any address that is a payroll contract
-        // In production, additional verification may be needed
+        // Note: Verification logic simplified for testing; for production, additional checks are needed
         HedgeVaultStorage storage s = _getStorage();
         HedgeVault storage vault = s.hedgeVaults[employee];
         require(vault.enabled, "Vault not enabled");
@@ -381,7 +380,7 @@ contract HedgeVaultManager is
                 recipient: recipient,
                 deadline: block.timestamp,
                 amountIn: amountIn,
-                amountOutMinimum: 0, // Accept any amount (for demo - in production, calculate minimum based on slippage tolerance)
+                amountOutMinimum: 0, // Note: Slippage protection disabled for demo environment
                 sqrtPriceLimitX96: 0
             });
 
@@ -545,8 +544,7 @@ contract HedgeVaultManager is
             return false;
         }
 
-        // In this MVP, we won't implement complex rebalancing logic
-        // A full implementation would check portfolio allocation vs target
+        // Note: MVP implementation skips complex rebalancing checks
         return false;
     }
 
@@ -554,9 +552,7 @@ contract HedgeVaultManager is
      * @notice Perform rebalance
      */
     function _performRebalance(HedgeVault storage vault) internal {
-        // In this MVP implementation, we would call a DEX swap function
-        // For now, we'll just record the rebalancing
-        // In a full implementation, swap logic would go here
+        // Note: Swap logic placeholder for MVP
 
         vault.lastRebalance = block.timestamp;
 

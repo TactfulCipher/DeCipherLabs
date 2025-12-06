@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 /**
  * @title MockTokenFaucet
  * @notice Distributes test tokens to new users for testing purposes
- * @dev Only works on testnet - DO NOT deploy to mainnet
+ * @dev Intended for testnet usage only.
  */
 contract MockTokenFaucet is Ownable {
     // Token contracts

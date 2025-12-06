@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-// NOTE: Upgradeability disabled for testnet. Uncomment imports for mainnet.
+// NOTE: Upgradeability disabled for testnet. Using standard Ownable for now.
 // import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 // import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -47,7 +47,7 @@ contract DeCipherLabsPayroll is
         BIWEEKLY, // Production: Pay every 14 days
         MONTHLY, // Production: Pay every 30 days
         HOURLY, // Production: Pay every hour (for contractors)
-        MINUTELY, // Testing only: Not recommended for production
+        MINUTELY, // Testing only: Used for rapid testing cycles
         CUSTOM // Production: Custom interval in seconds
     }
     enum RiskLevel {
