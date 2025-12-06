@@ -57,23 +57,55 @@ const FundingForm = ({ companyContract, onSuccess, onError, setActionLoading, ac
             }
 
             // Check and approve if needed
-            const allowance = await token.allowance(account, companyContract);
+            let allowance = await token.allowance(account, companyContract);
+            console.log('Current allowance:', ethers.utils.formatUnits(allowance, 18));
+
             if (allowance.lt(amountInWei)) {
                 console.log('Approving tokens...');
                 const approveTx = await token.approve(companyContract, amountInWei);
+                setActionLoading('approving');
                 await approveTx.wait();
                 console.log('Tokens approved');
+
+                // Verify allowance updated (wait for indexer if needed)
+                let retries = 5;
+                while (retries > 0) {
+                    allowance = await token.allowance(account, companyContract);
+                    if (allowance.gte(amountInWei)) break;
+
+                    console.log('Waiting for allowance update...', retries);
+                    await new Promise(r => setTimeout(r, 2000)); // Wait 2s
+                    retries--;
+                }
+
+                if (allowance.lt(amountInWei)) {
+                    throw new Error('Approval transaction confirmed but allowance not updated. Please try again.');
+                }
             }
 
+            setActionLoading('funding');
             console.log('Funding with ERC20:', feeCalc.total, 'tokens');
-            const tx = await payroll.fundWithERC20(tokenAddress, amountInWei);
+
+            // Add manual gas limit override if needed to bypass erratic estimation
+            const tx = await payroll.fundWithERC20(tokenAddress, amountInWei, {
+                gasLimit: 300000 // Safe buffer for this operation
+            });
             await tx.wait();
 
             onSuccess();
             setAmount('');
         } catch (err) {
             console.error('Error funding with ERC20:', err);
-            onError(err.message || 'Failed to fund with tokens');
+            // Handle "execution reverted" specifically
+            if (err.code === 'UNPREDICTABLE_GAS_LIMIT' || err.message?.includes('execution reverted')) {
+                if (err.message?.includes('0xfb8f41b2')) {
+                    onError('Transaction failed: Insufficient Allowance. Please try again.');
+                } else {
+                    onError('Transaction failed: Execution reverted. Check your balance and try again.');
+                }
+            } else {
+                onError(err.message || 'Failed to fund with tokens');
+            }
         } finally {
             setActionLoading('');
         }
