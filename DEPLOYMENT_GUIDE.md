@@ -30,14 +30,10 @@
 ### **Option 1: Deploy with Automatic Verification (Recommended)**
 
 ```bash
-# Deploy to Base Sepolia Testnet
-forge script script/DeployWithMocks.s.sol:DeployDeCipherLabsWithMocks \
-  --rpc-url $BASE_SEPOLIA_RPC_URL \
-  --private-key $PRIVATE_KEY \
-  --broadcast \
-  --verify \
-  --etherscan-api-key $BASESCAN_API_KEY \
-  -vvvv
+# Deploy to Base Sepolia Testnet (Single Line)
+forge script script/DeployWithMocks.s.sol:DeployDeCipherLabsWithMocks --rpc-url https://sepolia.base.org --broadcast --verify --etherscan-api-key SAAEZ7PCVR4RA3THB5EMSFZJQGWKY267HM -vvvv --private-key YOUR_PRIVATE_KEY_HERE
+# NOTE: Replace YOUR_PRIVATE_KEY_HERE with your 64-character hex private key (NOT your address).
+```
 ```
 
 ```bash
