@@ -660,7 +660,7 @@ const PayrollDashboard = ({ account, setAccount, onNavigate, onDisconnect }) => 
 
   // Process payments for active employees
   const handleProcessAllPayments = async () => {
-    if (!window.confirm(`Are you sure you want to process payments for all ${employees.filter(e => e.active).length} active employees?`)) {
+    if (!window.confirm(`Are you sure you want to process payments for all ${employees.filter(e => e.active).length} active employees? \n\nNOTE: This will require approving ${employees.filter(e => e.active).length} separate transactions in your wallet.`)) {
       return;
     }
 
