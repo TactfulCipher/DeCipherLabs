@@ -7,6 +7,7 @@ import "../src/DeCipherLabsPayrollFactory.sol";
 import "../src/HedgeVaultManager.sol";
 import "../src/MockStablecoin.sol";
 import "../src/MockVolatileToken.sol";
+import "../src/MockSwapRouter.sol";
 
 contract DeCipherLabsPayrollTest is Test {
     DeCipherLabsPayrollFactory factory;
@@ -14,6 +15,7 @@ contract DeCipherLabsPayrollTest is Test {
     HedgeVaultManager hedgeVault;
     MockStablecoin mockStable;
     MockVolatileToken mockVolatile;
+    MockSwapRouter swapRouter;
 
     address payable constant TREASURY =
         payable(0x1234567890123456789012345678901234567890);
@@ -27,13 +29,19 @@ contract DeCipherLabsPayrollTest is Test {
         mockStable = new MockStablecoin();
         mockVolatile = new MockVolatileToken();
 
+        // Deploy swap router
+        swapRouter = new MockSwapRouter();
+
         // Deploy hedge vault manager
         hedgeVault = new HedgeVaultManager();
         hedgeVault.initialize(
             address(mockStable),
-            address(0x789),
+            address(swapRouter),
             address(factory)
         );
+
+        // Set the swap router explicitly
+        hedgeVault.setSwapRouter(address(swapRouter));
 
         // Deploy factory
         factory = new DeCipherLabsPayrollFactory();
@@ -57,6 +65,13 @@ contract DeCipherLabsPayrollTest is Test {
 
         vm.prank(address(mockVolatile));
         mockVolatile.mint(COMPANY_OWNER, 1000000 * 10 ** 18);
+
+        // Fund swap router for swaps
+        vm.prank(address(mockStable));
+        mockStable.mint(address(swapRouter), 1000000 * 10 ** 18);
+
+        vm.prank(address(mockVolatile));
+        mockVolatile.mint(address(swapRouter), 1000000 * 10 ** 18);
     }
 
     function testDeployPayroll() public {
@@ -222,7 +237,9 @@ contract DeCipherLabsPayrollTest is Test {
         payroll.configureHedgeVault(
             EMPLOYEE1,
             DeCipherLabsPayroll.RiskLevel.MODERATE,
-            500 // 5% volatility threshold
+            500, // 5% volatility threshold
+            address(mockVolatile), // volatile token
+            address(mockStable) // stable token
         );
 
         vm.stopPrank();
@@ -263,8 +280,10 @@ contract DeCipherLabsPayrollTest is Test {
         payroll.configureHedgeVault(
             EMPLOYEE1,
             DeCipherLabsPayroll.RiskLevel.MODERATE,
-            500 // 5% volatility threshold
-        ); 
+            500, // 5% volatility threshold
+            address(mockVolatile), // volatile token
+            address(mockStable) // stable token
+        );
 
         vm.stopPrank();
 

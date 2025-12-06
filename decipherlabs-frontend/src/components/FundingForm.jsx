@@ -103,10 +103,10 @@ const FundingForm = ({ companyContract, onSuccess, onError, setActionLoading, ac
                 <select
                     value={tokenAddress}
                     onChange={(e) => setTokenAddress(e.target.value)}
-                    className="w-full px-3 py-2 bg-slate-800/50 border border-slate-700 rounded-lg text-white focus:border-blue-500 focus:outline-none"
+                    className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:border-blue-500 focus:outline-none cursor-pointer appearance-none"
                 >
-                    <option value={USDC_ADDRESS}>mUSDC (Mock Stablecoin)</option>
-                    <option value={SUPPORTED_TOKENS['mETH'].address}>mETH (Mock Volatile Token)</option>
+                    <option value={USDC_ADDRESS} className="bg-slate-800 text-white">mUSDC (Mock Stablecoin)</option>
+                    <option value={SUPPORTED_TOKENS['mETH'].address} className="bg-slate-800 text-white">mETH (Mock Volatile Token)</option>
                 </select>
                 <p className="text-xs text-slate-500 mt-1">Choose which token to fund the contract with</p>
             </div>

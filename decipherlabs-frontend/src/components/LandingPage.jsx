@@ -126,6 +126,9 @@ const DeCipherLabsLanding = (props) => {
               <a href="#features" onClick={(e) => { e.preventDefault(); document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' }); }} className="hover:text-blue-400 transition-colors">Features</a>
               <a href="#about" onClick={(e) => { e.preventDefault(); document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' }); }} className="hover:text-blue-400 transition-colors">About</a>
               <button onClick={() => onNavigate('docs')} className="hover:text-blue-400 transition-colors">Documentation</button>
+              <button onClick={() => onNavigate('faucet')} className="px-4 py-2 bg-green-600/20 border border-green-500/50 rounded-lg hover:bg-green-600/30 transition-colors text-green-400 font-semibold">
+                Get Test Tokens
+              </button>
 
               {account ? (
                 <div className="flex items-center space-x-4">

@@ -8,6 +8,7 @@ import "../src/HedgeVaultManager.sol";
 import "../src/MockStablecoin.sol";
 import "../src/MockVolatileToken.sol";
 import "../src/MockSwapRouter.sol";
+import "../src/MockTokenFaucet.sol";
 
 contract DeployDeCipherLabsWithMocks is Script {
     function run() external {
@@ -27,6 +28,12 @@ contract DeployDeCipherLabsWithMocks is Script {
             "Mock volatile token deployed at:",
             address(mockVolatileToken)
         );
+
+        // Mint additional tokens for faucet and other distributions
+        // MockStablecoin/MockVolatileToken mint 1M by default, we need more
+        mockStablecoin.mint(msg.sender, 100_000_000 * 10 ** 18); // Mint 100M more
+        mockVolatileToken.mint(msg.sender, 100_000_000 * 10 ** 18); // Mint 100M more
+        console.log("Minted additional tokens for distributions");
 
         // Deploy MockSwapRouter for testnet swaps
         MockSwapRouter swapRouter = new MockSwapRouter();
@@ -104,7 +111,7 @@ contract DeployDeCipherLabsWithMocks is Script {
         address companyOwner = COMPANY_OWNER; // Use the company owner who deployed the payroll
 
         uint256 stableAmount = 100000 * 10 ** 18; // 100,000 stable tokens with 18 decimals
-        uint256 volatileAmount = 50 * 10 ** 18; // 50 volatile tokens with 18 decimals
+        uint256 volatileAmount = 500000 * 10 ** 18; // 500,000 volatile tokens with 18 decimals
 
         // Transfer tokens to company owner for testing
         try mockStablecoin.transfer(companyOwner, stableAmount) {
@@ -163,6 +170,24 @@ contract DeployDeCipherLabsWithMocks is Script {
                 "Failed to fund HedgeVaultManager with volatile tokens"
             );
         }
+        // Deploy Token Faucet for easy test token distribution
+        MockTokenFaucet faucet = new MockTokenFaucet(
+            address(mockStablecoin),
+            address(mockVolatileToken)
+        );
+        console.log("Token Faucet deployed at:", address(faucet));
+
+        // Fund the faucet with a large amount of tokens
+        uint256 faucetStableFunding = 10000000 * 10 ** 18; // 10,000,000 stable tokens
+        uint256 faucetVolatileFunding = 50000000 * 10 ** 18; // 50,000,000 volatile tokens
+
+        mockStablecoin.transfer(address(faucet), faucetStableFunding);
+        mockVolatileToken.transfer(address(faucet), faucetVolatileFunding);
+        console.log("Funded faucet with test tokens");
+        console.log(
+            "Users can claim 100,000 mUSDC and 500,000 mETH anytime (no cooldown)"
+        );
+
         vm.stopBroadcast();
 
         console.log("=== DEPLOYMENT COMPLETE ===");
@@ -171,8 +196,14 @@ contract DeployDeCipherLabsWithMocks is Script {
         console.log("MockSwapRouter:", address(swapRouter));
         console.log("Factory Contract:", address(factory));
         console.log("HedgeVaultManager Contract:", address(hedgeVaultManager));
+        console.log("Token Faucet:", address(faucet));
         console.log("Test Payroll Contract:", testPayroll);
         console.log("Treasury:", TREASURY_WALLET);
         console.log("===========================");
+        console.log("");
+        console.log(
+            "IMPORTANT: New users should claim test tokens from the faucet!"
+        );
+        console.log("Faucet Address:", address(faucet));
     }
 }

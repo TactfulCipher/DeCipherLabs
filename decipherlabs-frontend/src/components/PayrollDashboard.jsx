@@ -361,8 +361,6 @@ const PayrollDashboard = ({ account, setAccount, onNavigate, onDisconnect }) => 
 
       await addEmployee(companyContract, employeeData, signer);
 
-      await addEmployee(companyContract, employeeData, signer);
-
       // Save employee name
       if (newEmployee.name) {
         saveEmployeeName(newEmployee.walletAddress, newEmployee.name);
@@ -1384,11 +1382,11 @@ const PayrollDashboard = ({ account, setAccount, onNavigate, onDisconnect }) => 
             <select
               value={newEmployee.currency}
               onChange={(e) => setNewEmployee({ ...newEmployee, currency: e.target.value })}
-              className="w-full px-3 py-2 bg-slate-800/50 border border-slate-700 rounded-lg text-white focus:border-blue-500 focus:outline-none"
+              className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:border-blue-500 focus:outline-none cursor-pointer appearance-none"
             >
-              <option value="mUSDC">mUSDC (Mock Stablecoin)</option>
-              <option value="mETH">mETH (Mock Volatile)</option>
-              <option value="ETH">ETH</option>
+              <option value="mUSDC" className="bg-slate-800 text-white">mUSDC (Mock Stablecoin)</option>
+              <option value="mETH" className="bg-slate-800 text-white">mETH (Mock Volatile)</option>
+              <option value="ETH" className="bg-slate-800 text-white">ETH</option>
             </select>
           </div>
 
@@ -1397,13 +1395,13 @@ const PayrollDashboard = ({ account, setAccount, onNavigate, onDisconnect }) => 
             <select
               value={newEmployee.paymentSchedule}
               onChange={(e) => setNewEmployee({ ...newEmployee, paymentSchedule: e.target.value })}
-              className="w-full px-3 py-2 bg-slate-800/50 border border-slate-700 rounded-lg text-white focus:border-blue-500 focus:outline-none"
+              className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:border-blue-500 focus:outline-none cursor-pointer appearance-none"
             >
-              <option value="minutely">Every Minute (Testing)</option>
-              <option value="hourly">Hourly (Testing)</option>
-              <option value="weekly">Weekly</option>
-              <option value="biweekly">Bi-weekly</option>
-              <option value="monthly">Monthly</option>
+              <option value="minutely" className="bg-slate-800 text-white">Every Minute (Testing)</option>
+              <option value="hourly" className="bg-slate-800 text-white">Hourly (Testing)</option>
+              <option value="weekly" className="bg-slate-800 text-white">Weekly</option>
+              <option value="biweekly" className="bg-slate-800 text-white">Bi-weekly</option>
+              <option value="monthly" className="bg-slate-800 text-white">Monthly</option>
             </select>
           </div>
 

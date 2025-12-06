@@ -31,7 +31,7 @@ export const NETWORK_CONFIG = {
 // To set up your treasury address:
 // 1. Deploy DeCipherLabs_PayrollFactory with your treasury address and 100 bps (1% fee)
 // 2. Replace the placeholder address below with your deployed factory address
-export const FACTORY_ADDRESS = '0xd0798b082b29E00D4Ecb0682E896D72181fa7873';
+export const FACTORY_ADDRESS = '0x7655BA54ab4A0E0Fb5e93083B6f8bd19378AEF6a';
 
 // Example deployment (using foundry/hardhat):
 // factory = new DeCipherLabs_PayrollFactory(yourTreasuryAddress, 100); // 100 = 1% fee
@@ -39,18 +39,18 @@ export const FACTORY_ADDRESS = '0xd0798b082b29E00D4Ecb0682E896D72181fa7873';
 // Treasury address: 0xYourTreasuryAddress (receives 1% fees)
 // Add the correct contract addresses
 
-export const USDC_ADDRESS = '0x86a32F7925543bcdB4c13607E8241273A05463f9';
-export const HEDGE_VAULT_MANAGER_ADDRESS = '0x535D567552cBe22dc97a9C231fFa9B2Ba36903C3';
+export const USDC_ADDRESS = '0x271ae55dD9901b1293a849ecabe1caFC0D9c66BB';
+export const HEDGE_VAULT_MANAGER_ADDRESS = '0xB62e81F1EdEDC001afc6E21888F80aBC9abD8a9F';
 
 // Supported Tokens
 export const SUPPORTED_TOKENS = {
   'mUSDC': {
-    address: '0x86a32F7925543bcdB4c13607E8241273A05463f9',
+    address: '0x271ae55dD9901b1293a849ecabe1caFC0D9c66BB',
     symbol: 'mUSDC',
     decimals: 18
   },
   'mETH': {
-    address: '0xcAdaDeDbF3C1c385D1003a52eA4fCd26Cc6b081B',
+    address: '0xD5Aa265e7294bf4CE98B963967929e95BDA1d6E7',
     symbol: 'mETH',
     decimals: 18
   }

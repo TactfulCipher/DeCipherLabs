@@ -77,11 +77,11 @@ const WithdrawForm = ({ companyContract, onSuccess, onError, setActionLoading, a
                 <select
                     value={tokenAddress}
                     onChange={(e) => setTokenAddress(e.target.value)}
-                    className="w-full px-3 py-2 bg-slate-800/50 border border-slate-700 rounded-lg text-white focus:border-blue-500 focus:outline-none"
+                    className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:border-blue-500 focus:outline-none cursor-pointer appearance-none"
                 >
-                    <option value={SUPPORTED_TOKENS.mUSDC.address}>mUSDC (Mock Stablecoin)</option>
-                    <option value={SUPPORTED_TOKENS.mETH.address}>mETH (Mock Volatile Token)</option>
-                    <option value={ethers.constants.AddressZero}>ETH (Native)</option>
+                    <option value={SUPPORTED_TOKENS.mUSDC.address} className="bg-slate-800 text-white">mUSDC (Mock Stablecoin)</option>
+                    <option value={SUPPORTED_TOKENS.mETH.address} className="bg-slate-800 text-white">mETH (Mock Volatile Token)</option>
+                    <option value={ethers.constants.AddressZero} className="bg-slate-800 text-white">ETH (Native)</option>
                 </select>
                 <p className="text-xs text-slate-500 mt-1">Available: {parseFloat(getAvailableBalance()).toFixed(4)} {getTokenName()}</p>
             </div>

@@ -6,10 +6,18 @@ import DocsPage from './components/DocsPage';
 import WhitepaperPage from './components/WhitepaperPage';
 import UserGuidePage from './components/UserGuidePage';
 import TestingGuidePage from './components/TestingGuidePage';
+import TokenFaucet from './components/TokenFaucet';
 import { removeListeners } from './utils/web3';
 
 function App() {
   const [currentPage, setCurrentPage] = useState(() => {
+    // Check URL first
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const page = params.get('page');
+      if (page) return page;
+    }
+
     // Check localStorage for preferred page
     const preferredPage = localStorage.getItem('preferredPage');
     if (preferredPage) {
@@ -97,16 +105,52 @@ function App() {
     localStorage.setItem('dapp:disconnected', 'true');
   };
 
-  const navigateTo = (page, data = {}) => {
-    // Default to 'payroll' if page is 'payroll'
-    if (page === 'payroll') {
-      setCurrentPage('payroll');
-    } else {
+  // Handle browser back/forward buttons
+  useEffect(() => {
+    const handlePopState = (event) => {
+      // If state exists, use it
+      if (event.state && event.state.page) {
+        setCurrentPage(event.state.page);
+        if (event.state.payrollAddress) {
+          setPayrollAddress(event.state.payrollAddress);
+        }
+      } else {
+        // Fallback to URL search params or default
+        const params = new URLSearchParams(window.location.search);
+        const page = params.get('page') || 'landing';
+        setCurrentPage(page);
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+
+    // Initial load: Set state from URL if present
+    const params = new URLSearchParams(window.location.search);
+    const page = params.get('page');
+    if (page && page !== currentPage) {
       setCurrentPage(page);
     }
+
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  const navigateTo = (page, data = {}) => {
+    const targetPage = page === 'payroll' ? 'payroll' : page;
+
+    // Update state
+    setCurrentPage(targetPage);
     if (data.payrollAddress) {
       setPayrollAddress(data.payrollAddress);
     }
+
+    // Push to browser history
+    const url = new URL(window.location);
+    url.searchParams.set('page', targetPage);
+    window.history.pushState(
+      { page: targetPage, payrollAddress: data.payrollAddress },
+      '',
+      url
+    );
   };
 
 
@@ -137,6 +181,8 @@ function App() {
         <UserGuidePage onNavigate={navigateTo} />
       ) : currentPage === 'testing' ? (
         <TestingGuidePage onNavigate={navigateTo} />
+      ) : currentPage === 'faucet' ? (
+        <TokenFaucet account={account} onNavigate={navigateTo} />
       ) : (
         <PayrollDashboard
           account={account}

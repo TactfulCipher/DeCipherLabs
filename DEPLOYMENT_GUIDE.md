@@ -1,91 +1,230 @@
-# 🚀 Deployment Guide for Vercel
+# 🚀 Deployment & Verification Guide
 
-This guide explains how to deploy the **DeCipherLabs Frontend** to Vercel while keeping your full codebase (including smart contracts) in one GitHub repository.
+## Prerequisites
 
-## ✅ Prerequisites
+1. **Environment Variables**
+   Create a `.env` file in the project root:
+   ```bash
+   # Base Sepolia Testnet
+   BASE_SEPOLIA_RPC_URL=https://sepolia.base.org
+   
+   # Or Base Mainnet
+   BASE_MAINNET_RPC_URL=https://mainnet.base.org
+   
+   # Your deployer private key
+   PRIVATE_KEY=your_private_key_here
+   
+   # BaseScan API Key (get from https://basescan.org/myapikey)
+   BASESCAN_API_KEY=your_basescan_api_key_here
+   ```
 
-1.  **GitHub Account**: You need a GitHub account to host your code.
-2.  **Vercel Account**: You need a Vercel account (linked to your GitHub) to deploy the site.
-
----
-
-## Step 1: Push Code to GitHub
-
-You need to push your entire `CipherLabs` folder to a new GitHub repository.
-
-1.  **Initialize Git** (if you haven't already):
-    ```bash
-    cd c:\Users\lenovo\CipherLabs
-    git init
-    git add .
-    git commit -m "Initial commit of DeCipherLabs"
-    ```
-
-2.  **Create a Repo on GitHub**:
-    *   Go to [github.com/new](https://github.com/new).
-    *   Name it `decipherlabs-payroll` (or whatever you prefer).
-    *   **Do not** initialize with README, .gitignore, or License (you already have them).
-
-3.  **Push to GitHub**:
-    *   Copy the commands shown on GitHub under "…or push an existing repository from the command line".
-    *   It will look something like this:
-        ```bash
-        git remote add origin https://github.com/YOUR_USERNAME/decipherlabs-payroll.git
-        git branch -M main
-        git push -u origin main
-        ```
+2. **Load Environment Variables**
+   ```bash
+   source .env
+   ```
 
 ---
 
-## Step 2: Deploy to Vercel
+## Deployment Commands
 
-1.  **Log in to Vercel**: Go to [vercel.com](https://vercel.com) and log in.
-2.  **Add New Project**: Click **"Add New..."** -> **"Project"**.
-3.  **Import Repository**: Find your `decipherlabs-payroll` repo and click **"Import"**.
+### **Option 1: Deploy with Automatic Verification (Recommended)**
 
-### ⚠️ CRITICAL CONFIGURATION STEPS ⚠️
+```bash
+# Deploy to Base Sepolia Testnet
+forge script script/DeployWithMocks.s.sol:DeployDeCipherLabsWithMocks \
+  --rpc-url $BASE_SEPOLIA_RPC_URL \
+  --private-key $PRIVATE_KEY \
+  --broadcast \
+  --verify \
+  --etherscan-api-key $BASESCAN_API_KEY \
+  -vvvv
+```
 
-You **MUST** configure the following settings correctly because your frontend is in a subfolder (`decipherlabs-frontend`), not the root.
-
-4.  **Configure Project**:
-    *   **Project Name**: Leave as is or change if you want.
-    *   **Framework Preset**: It should auto-detect **Vite**.
-    *   **Root Directory**: Click **"Edit"** next to Root Directory.
-        *   Select the `decipherlabs-frontend` folder.
-        *   Click **"Continue"**.
-
-5.  **Environment Variables**:
-    *   Expand the **"Environment Variables"** section.
-    *   You need to add the RPC URL for Base Sepolia.
-    *   **Key**: `VITE_BASE_SEPOLIA_RPC`
-    *   **Value**: `https://sepolia.base.org` (or your private Alchemy/Infura URL if you have one).
-
-6.  **Deploy**:
-    *   Click **"Deploy"**.
-
----
-
-## Step 3: Automatic Updates
-
-**Q: When I make changes, will they reflect automatically?**
-
-**A: YES!** 🚀
-
-1.  Make changes to your code locally.
-2.  Commit and push to GitHub:
-    ```bash
-    git add .
-    git commit -m "Updated landing page colors"
-    git push
-    ```
-3.  Vercel will **automatically detect the push**, build your new site, and update the live URL within minutes.
+```bash
+# Deploy to Base Mainnet
+forge script script/DeployWithMocks.s.sol:DeployDeCipherLabsWithMocks \
+  --rpc-url $BASE_MAINNET_RPC_URL \
+  --private-key $PRIVATE_KEY \
+  --broadcast \
+  --verify \
+  --etherscan-api-key $BASESCAN_API_KEY \
+  -vvvv
+```
 
 ---
 
-## ℹ️ Important Note on Smart Contracts
+### **Option 2: Deploy First, Verify Later**
 
-*   **Frontend**: Hosted on Vercel.
-*   **Backend (Smart Contracts)**: Live on the **Base Sepolia Blockchain**.
-*   **The `CipherLabs_Payroll_Infrastructure` folder**: This is just your source code. Vercel ignores it (because you set the Root Directory to `decipherlabs-frontend`). This is perfectly fine and good practice!
+#### Step 1: Deploy
+```bash
+forge script script/DeployWithMocks.s.sol:DeployDeCipherLabsWithMocks \
+  --rpc-url $BASE_SEPOLIA_RPC_URL \
+  --private-key $PRIVATE_KEY \
+  --broadcast \
+  -vvvv
+```
 
-You are now ready to go live! 🌍
+#### Step 2: Verify Each Contract
+After deployment, note the contract addresses from the logs, then verify:
+
+```bash
+# Verify MockStablecoin
+forge verify-contract \
+  <STABLECOIN_ADDRESS> \
+  src/MockStablecoin.sol:MockStablecoin \
+  --chain-id 84532 \
+  --etherscan-api-key $BASESCAN_API_KEY
+
+# Verify MockVolatileToken
+forge verify-contract \
+  <VOLATILE_TOKEN_ADDRESS> \
+  src/MockVolatileToken.sol:MockVolatileToken \
+  --chain-id 84532 \
+  --etherscan-api-key $BASESCAN_API_KEY
+
+# Verify MockSwapRouter
+forge verify-contract \
+  <SWAP_ROUTER_ADDRESS> \
+  src/MockSwapRouter.sol:MockSwapRouter \
+  --chain-id 84532 \
+  --etherscan-api-key $BASESCAN_API_KEY
+
+# Verify HedgeVaultManager
+forge verify-contract \
+  <HEDGE_VAULT_ADDRESS> \
+  src/HedgeVaultManager.sol:HedgeVaultManager \
+  --chain-id 84532 \
+  --etherscan-api-key $BASESCAN_API_KEY
+
+# Verify PayrollFactory
+forge verify-contract \
+  <FACTORY_ADDRESS> \
+  src/DeCipherLabsPayrollFactory.sol:DeCipherLabsPayrollFactory \
+  --chain-id 84532 \
+  --etherscan-api-key $BASESCAN_API_KEY
+
+# Verify TokenFaucet
+forge verify-contract \
+  <FAUCET_ADDRESS> \
+  src/MockTokenFaucet.sol:MockTokenFaucet \
+  --chain-id 84532 \
+  --etherscan-api-key $BASESCAN_API_KEY \
+  --constructor-args $(cast abi-encode "constructor(address,address)" <STABLE_ADDRESS> <VOLATILE_ADDRESS>)
+```
+
+---
+
+## Chain IDs
+
+| Network | Chain ID |
+|---------|----------|
+| Base Sepolia (Testnet) | 84532 |
+| Base Mainnet | 8453 |
+
+---
+
+## After Deployment
+
+### 1. **Save Contract Addresses**
+The deployment script will output all contract addresses. Save them:
+
+```
+Mock stablecoin deployed at: 0x...
+Mock volatile token deployed at: 0x...
+Mock swap router deployed at: 0x...
+Hedge vault manager deployed at: 0x...
+Payroll factory deployed at: 0x...
+Token Faucet deployed at: 0x...
+```
+
+### 2. **Update Frontend**
+Update `decipherlabs-frontend/src/utils/faucet.js`:
+```javascript
+export const FAUCET_ADDRESS = '0xYOUR_FAUCET_ADDRESS';
+```
+
+Update other contract addresses in your frontend config files.
+
+### 3. **Verify on BaseScan**
+Visit BaseScan to see your verified contracts:
+- **Testnet:** https://sepolia.basescan.org/address/YOUR_CONTRACT_ADDRESS
+- **Mainnet:** https://basescan.org/address/YOUR_CONTRACT_ADDRESS
+
+---
+
+## Troubleshooting
+
+### **Verification Failed?**
+
+If automatic verification fails, you can retry:
+
+```bash
+# Get the deployment transaction hash from the logs
+forge verify-contract \
+  <CONTRACT_ADDRESS> \
+  <CONTRACT_PATH>:<CONTRACT_NAME> \
+  --chain-id <CHAIN_ID> \
+  --etherscan-api-key $BASESCAN_API_KEY \
+  --watch
+```
+
+### **Constructor Arguments**
+
+For contracts with constructor arguments (like MockTokenFaucet), encode them:
+
+```bash
+# Example for MockTokenFaucet
+cast abi-encode "constructor(address,address)" \
+  0xSTABLE_TOKEN_ADDRESS \
+  0xVOLATILE_TOKEN_ADDRESS
+```
+
+---
+
+## Testing Deployment
+
+After deployment, test the contracts:
+
+```bash
+# 1. Check faucet balance
+cast call <FAUCET_ADDRESS> "getFaucetBalance()(uint256,uint256)" \
+  --rpc-url $BASE_SEPOLIA_RPC_URL
+
+# 2. Claim tokens from faucet
+cast send <FAUCET_ADDRESS> "claimTokens()" \
+  --rpc-url $BASE_SEPOLIA_RPC_URL \
+  --private-key $PRIVATE_KEY
+
+# 3. Check your token balance
+cast call <STABLE_TOKEN_ADDRESS> "balanceOf(address)(uint256)" \
+  <YOUR_ADDRESS> \
+  --rpc-url $BASE_SEPOLIA_RPC_URL
+```
+
+---
+
+## Summary
+
+✅ All 40 tests passing  
+✅ Ready for deployment  
+✅ Verification guide provided  
+✅ Frontend integration ready  
+
+**You're all set to deploy to Base!** 🚀
+
+---
+
+## Quick Deploy Command
+
+```bash
+# One-line deploy with verification
+forge script script/DeployWithMocks.s.sol:DeployDeCipherLabsWithMocks \
+  --rpc-url $BASE_SEPOLIA_RPC_URL \
+  --private-key $PRIVATE_KEY \
+  --broadcast \
+  --verify \
+  --etherscan-api-key $BASESCAN_API_KEY \
+  -vvvv
+```
+
+After deployment, update the faucet address in your frontend and you're live! 🎉
