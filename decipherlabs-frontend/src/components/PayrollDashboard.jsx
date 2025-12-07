@@ -28,8 +28,7 @@ const PayrollDashboard = ({ account, setAccount, onNavigate, onDisconnect }) => 
   });
   const [fundingAmount, setFundingAmount] = useState(''); // For mUSDC funding
   const [ethFundingAmount, setEthFundingAmount] = useState(''); // For ETH funding
-  const [paymentSchedule, setPaymentSchedule] = useState('manual'); // manual, weekly, biweekly, monthly
-  const [scheduledPaymentDate, setScheduledPaymentDate] = useState('');
+
   const [loading, setLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState('');
   const [error, setError] = useState('');
@@ -740,29 +739,7 @@ const PayrollDashboard = ({ account, setAccount, onNavigate, onDisconnect }) => 
     }
   };
 
-  // Schedule payment (UI placeholder)
-  const handleSchedulePayment = async () => {
-    if (!scheduledPaymentDate) {
-      setError('Please select a specific date for scheduling');
-      return;
-    }
 
-    try {
-      setActionLoading('schedule-pay');
-
-      // In a real implementation, this would connect to a backend scheduler
-      // For now, we'll just show a success message with the scheduled date
-      const scheduledDate = new Date(scheduledPaymentDate);
-      setSuccess(`Payment scheduled for ${scheduledDate.toLocaleString()}. In a real implementation, this would trigger automatic payments at the specified interval.`);
-
-      // Backend service integration would go here
-    } catch (err) {
-      console.error('Error scheduling payment:', err);
-      setError(err.message || 'Failed to schedule payment');
-    } finally {
-      setActionLoading('');
-    }
-  };
 
   const handleFundContract = async (token = 'ETH') => {
     const amountToUse = token === 'ETH' ? ethFundingAmount : fundingAmount;
@@ -1677,63 +1654,29 @@ const PayrollDashboard = ({ account, setAccount, onNavigate, onDisconnect }) => 
           </div>
         </div>
 
-        {/* Payment Scheduling Controls */}
-        <div className="mb-6 p-4 bg-slate-800/50 rounded-lg border border-slate-700">
-          <h3 className="text-lg font-semibold text-white mb-3 flex items-center space-x-2">
-            <Clock className="w-5 h-5 text-blue-400" />
-            <span>Payment Scheduling</span>
-          </h3>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Payment Schedule</label>
-              <select
-                value={paymentSchedule}
-                onChange={(e) => setPaymentSchedule(e.target.value)}
-                className="w-full px-3 py-2 bg-slate-800/50 border border-slate-700 rounded-lg text-white focus:border-blue-500 focus:outline-none"
-              >
-                <option value="manual">Manual (Pay Now)</option>
-                <option value="weekly">Weekly</option>
-                <option value="biweekly">Bi-weekly</option>
-                <option value="monthly">Monthly</option>
-                <option value="custom">Custom Date</option>
-              </select>
-            </div>
-
-            {paymentSchedule === 'custom' && (
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Specific Date</label>
-                <input
-                  type="datetime-local"
-                  value={scheduledPaymentDate}
-                  onChange={(e) => setScheduledPaymentDate(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-800/50 border border-slate-700 rounded-lg text-white focus:border-blue-500 focus:outline-none"
-                />
-              </div>
-            )}
+        {/* Bulk Payment Control */}
+        <div className="mb-6 p-8 bg-slate-800/50 rounded-xl border border-slate-700 flex flex-col items-center text-center">
+          <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mb-4">
+            <DollarSign className="w-8 h-8 text-green-400" />
           </div>
+          <h3 className="text-xl font-bold text-white mb-2">Run Payroll</h3>
+          <p className="text-slate-400 mb-6 max-w-lg">
+            Process payments for all <span className="text-white font-semibold">{employees.filter(e => e.active).length} active employees</span>.
+            Transactions will be generated for each employee according to their salary settings.
+          </p>
 
-          <div className="flex flex-wrap gap-3">
-            <button
-              onClick={handleProcessAllPayments}
-              disabled={actionLoading === 'batch-pay' || employees.length === 0}
-              className="px-4 py-2 bg-green-600 hover:bg-green-500 rounded-lg text-white flex items-center space-x-2 disabled:opacity-50"
-            >
-              <Play className="w-4 h-4" />
-              <span>Process All Payments Now</span>
-            </button>
-
-            {paymentSchedule !== 'manual' && scheduledPaymentDate && (
-              <button
-                onClick={handleSchedulePayment}
-                disabled={actionLoading === 'schedule-pay'}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white flex items-center space-x-2 disabled:opacity-50"
-              >
-                <Clock className="w-4 h-4" />
-                <span>Schedule Payment</span>
-              </button>
+          <button
+            onClick={handleProcessAllPayments}
+            disabled={actionLoading === 'batch-pay' || employees.filter(e => e.active).length === 0}
+            className="px-8 py-4 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 rounded-xl text-white font-bold text-lg shadow-lg shadow-green-900/20 flex items-center space-x-3 disabled:opacity-50 disabled:grayscale transition-all transform hover:-translate-y-1"
+          >
+            {actionLoading === 'batch-pay' ? (
+              <RefreshCw className="w-6 h-6 animate-spin" />
+            ) : (
+              <Play className="w-6 h-6 fill-current" />
             )}
-          </div>
+            <span>Process All Payments Now</span>
+          </button>
         </div>
 
         <h3 className="text-lg font-semibold text-white mb-4">Individual Employee Payments</h3>
