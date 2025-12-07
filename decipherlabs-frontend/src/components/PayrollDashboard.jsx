@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, LogOut, Plus, Users, Shield, TrendingUp, DollarSign, CheckCircle, Upload, Clock, Wallet, AlertCircle, RefreshCw, Trash2, Play, RotateCcw, UserX, Zap, Eye } from 'lucide-react';
+import { ArrowLeft, LogOut, Plus, Users, Shield, TrendingUp, DollarSign, CheckCircle, Upload, Clock, Wallet, AlertCircle, RefreshCw, Trash2, Play, RotateCcw, UserX, Zap, Eye, Droplet } from 'lucide-react';
 import { ethers } from 'ethers';
 import FundingForm from './FundingForm';
 import WithdrawForm from './WithdrawForm';
@@ -1154,6 +1154,14 @@ const PayrollDashboard = ({ account, setAccount, onNavigate, onDisconnect }) => 
           </div>
           <p className="text-slate-400 text-sm">Configure tax and hedge vault</p>
         </button>
+
+        <button onClick={() => onNavigate && onNavigate('faucet')} className="p-6 bg-indigo-600/20 hover:bg-indigo-600/30 border border-indigo-500/30 rounded-xl transition-colors text-left group">
+          <div className="flex items-center space-x-3 mb-3">
+            <Droplet className="w-6 h-6 text-indigo-400 group-hover:scale-110 transition-transform" />
+            <h3 className="text-lg font-semibold text-white">Test Faucet</h3>
+          </div>
+          <p className="text-slate-400 text-sm">Get free test tokens</p>
+        </button>
       </div>
 
       {/* Quick Actions */}
@@ -1164,6 +1172,13 @@ const PayrollDashboard = ({ account, setAccount, onNavigate, onDisconnect }) => 
         </button>
         <button onClick={() => setCurrentStep('funding')} className="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white transition-colors">
           Fund Contract
+        </button>
+        <button
+          onClick={() => onNavigate && onNavigate('faucet')}
+          className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-white flex items-center space-x-2 transition-colors"
+        >
+          <Droplet className="w-4 h-4" />
+          <span>Get Test Tokens</span>
         </button>
       </div>
     </div>
@@ -1539,7 +1554,16 @@ const PayrollDashboard = ({ account, setAccount, onNavigate, onDisconnect }) => 
   const renderFunding = () => (
     <div className="max-w-2xl mx-auto">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-white">Fund Your Contract</h2>
+        <div>
+          <h2 className="text-2xl font-bold text-white">Fund Your Contract</h2>
+          <button
+            onClick={() => onNavigate && onNavigate('faucet')}
+            className="text-indigo-400 hover:text-indigo-300 text-sm flex items-center space-x-1 mt-1"
+          >
+            <Droplet className="w-3 h-3" />
+            <span>Need tokens? Get them here</span>
+          </button>
+        </div>
         <button onClick={() => setCurrentStep('dashboard')} className="text-slate-400 hover:text-white flex items-center space-x-1">
           <ArrowLeft className="w-4 h-4" /><span>Back</span>
         </button>
@@ -2083,6 +2107,13 @@ const PayrollDashboard = ({ account, setAccount, onNavigate, onDisconnect }) => 
             </button>
 
             <div className="flex items-center space-x-4">
+              <button
+                onClick={() => onNavigate && onNavigate('faucet')}
+                className="px-3 py-2 bg-indigo-600/20 hover:bg-indigo-600/30 border border-indigo-500/30 rounded-lg text-indigo-400 hover:text-indigo-300 transition-colors flex items-center space-x-2 text-sm"
+              >
+                <Droplet className="w-4 h-4" />
+                <span>Get Tokens</span>
+              </button>
               {account ? (
                 <div className="flex items-center space-x-4">
                   <div className="text-sm text-slate-300 font-mono bg-slate-800/50 px-3 py-1.5 rounded-lg">
