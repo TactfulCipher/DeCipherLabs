@@ -11,6 +11,7 @@ console.log('🏭 Using Factory Address:', FACTORY_ADDRESS);
 // Complete ABI matching your deployed contract
 const PAYROLL_ABI = [
     // Core functions
+    'function name() view returns (string)',
     'function initialize(address _companyOwner, address _taxRecipient, address _factory)',
     'function addEmployee(address wallet, address tokenAddress, uint256 salaryPerPeriod, uint8 frequency, uint64 customFrequency, uint16 taxBps)',
     'function processPayment(address employee)',

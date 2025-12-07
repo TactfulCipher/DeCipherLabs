@@ -26,6 +26,7 @@ const PayrollDashboard = ({ account, setAccount, onNavigate, onDisconnect }) => 
     paymentSchedule: 'monthly',
     taxBps: 0
   });
+  const [companyList, setCompanyList] = useState([]);
   const [fundingAmount, setFundingAmount] = useState(''); // For mUSDC funding
   const [ethFundingAmount, setEthFundingAmount] = useState(''); // For ETH funding
 
@@ -128,55 +129,62 @@ const PayrollDashboard = ({ account, setAccount, onNavigate, onDisconnect }) => 
     try {
       const { provider, signer } = await getProviderAndSigner();
 
-      // Check localStorage
-      const storedContract = localStorage.getItem(`companyContract:${account}`);
-      if (storedContract) {
-        const code = await provider.getCode(storedContract);
-        if (code && code !== '0x') {
-          setCompanyContract(storedContract);
-          setCurrentStep('dashboard');
-          return;
-        }
-        localStorage.removeItem(`companyContract:${account}`);
-      }
-
-      // Try factory methods
+      // 1. Check Factory Contract (Source of Truth)
       try {
         const factoryContract = await getFactoryContract(signer);
-        // Check for getCompanyPayrolls
         if (factoryContract.getCompanyPayrolls) {
           const payrolls = await factoryContract.getCompanyPayrolls(account);
           console.log('Factory payrolls for account:', payrolls);
 
           if (payrolls && payrolls.length > 0) {
-            // Use most recent payroll contract
-            const latestContract = payrolls[payrolls.length - 1];
-            const code = await provider.getCode(latestContract);
-            if (code && code !== '0x') {
-              console.log('Found existing payroll contract:', latestContract);
-              setCompanyContract(latestContract);
-              localStorage.setItem(`companyContract:${account}`, latestContract);
-              setCurrentStep('dashboard');
-              return;
-            }
+            // Fetch names for all contracts
+            const list = await Promise.all(
+              payrolls.map(async (addr) => {
+                let name = localStorage.getItem(`companyName:${addr}`);
+                if (!name) {
+                  try {
+                    // Try fetching name from contract
+                    const c = new ethers.Contract(addr, ['function name() view returns (string)'], provider);
+                    name = await c.name();
+                    if (name) localStorage.setItem(`companyName:${addr}`, name);
+                  } catch (e) {
+                    console.warn(`Could not get name for ${addr}`, e);
+                  }
+                }
+                return { address: addr, name: name || 'Unnamed Company' };
+              })
+            );
+
+            // Sort by most recent (assuming last in list is newest)
+            setCompanyList(list.reverse());
+            setCurrentStep('selectCompany');
+            return;
           }
-        } else {
-          console.log('Factory contract does not have getCompanyPayrolls function');
         }
       } catch (e) {
         console.error('Error checking factory contract:', e);
       }
 
-      // Check if wallet is an employee in test contract
+      // 2. Fallback: Check localStorage (Legacy/Local only)
+      const storedContract = localStorage.getItem(`companyContract:${account}`);
+      if (storedContract) {
+        const code = await provider.getCode(storedContract);
+        if (code && code !== '0x') {
+          // If we found one locally but Factory failed/didn't have it, offer it
+          setCompanyList([{ address: storedContract, name: localStorage.getItem(`companyName:${storedContract}`) || 'Local Contract' }]);
+          setCurrentStep('selectCompany');
+          return;
+        }
+        localStorage.removeItem(`companyContract:${account}`);
+      }
+
+      // 3. Check for Employee Status (Test Contract)
       try {
         const code = await provider.getCode(KNOWN_TEST_PAYROLL);
         if (code && code !== '0x') {
-          console.log('Checking if user is an employee in test contract...');
-
-          // Timeout to prevent hanging
           const employeeCheckPromise = getEmployeeList(KNOWN_TEST_PAYROLL, signer);
           const timeoutPromise = new Promise((_, reject) =>
-            setTimeout(() => reject(new Error('Employee check timeout')), 5000)
+            setTimeout(() => reject(new Error('Employee check timeout')), 3000)
           );
 
           try {
@@ -184,9 +192,8 @@ const PayrollDashboard = ({ account, setAccount, onNavigate, onDisconnect }) => 
             const isEmployee = employeeList.some(addr => addr.toLowerCase() === account.toLowerCase());
 
             if (isEmployee) {
-              console.log('User is an employee! Showing options...');
               const goToPortal = window.confirm(
-                `You are registered as an employee!\n\n` +
+                `You are registered as an employee in the demo contract!\n\n` +
                 `Click OK to view your Employee Portal\n` +
                 `Click Cancel to deploy your own company contract`
               );
@@ -199,13 +206,9 @@ const PayrollDashboard = ({ account, setAccount, onNavigate, onDisconnect }) => 
                 return;
               }
             }
-          } catch (timeoutErr) {
-            console.log('Employee check timed out, proceeding to setup');
-          }
+          } catch (e) { /* ignore */ }
         }
-      } catch (e) {
-        console.log('Error checking employee status:', e);
-      }
+      } catch (e) { /* ignore */ }
 
       setCurrentStep('setup');
     } catch (err) {
@@ -804,6 +807,52 @@ const PayrollDashboard = ({ account, setAccount, onNavigate, onDisconnect }) => 
     </div>
   );
 
+  const renderSelectCompany = () => (
+    <div className="max-w-xl mx-auto">
+      <div className="text-center mb-8">
+        <h2 className="text-2xl font-bold text-white mb-2">Select Company</h2>
+        <p className="text-slate-400">We found {companyList.length} company contract{companyList.length !== 1 ? 's' : ''} associated with your wallet.</p>
+      </div>
+
+      <div className="bg-slate-900/50 p-6 rounded-xl border border-blue-500/20 max-h-[60vh] overflow-y-auto mb-6">
+        <div className="space-y-3">
+          {companyList.map((company, idx) => (
+            <button
+              key={idx}
+              onClick={() => {
+                setCompanyContract(company.address);
+                localStorage.setItem(`companyContract:${account}`, company.address);
+                localStorage.setItem(`companyName:${company.address}`, company.name);
+                setCurrentStep('dashboard');
+              }}
+              className="w-full text-left p-4 rounded-xl bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700 hover:border-blue-500/50 transition-all group"
+            >
+              <div className="flex justify-between items-center">
+                <div>
+                  <h3 className="text-white font-semibold group-hover:text-blue-400 transition-colors">{company.name}</h3>
+                  <p className="text-slate-500 text-xs font-mono mt-1">{company.address}</p>
+                </div>
+                <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center group-hover:bg-blue-500/20">
+                  <ArrowLeft className="w-4 h-4 text-slate-400 group-hover:text-blue-400 rotate-180" />
+                </div>
+              </div>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="text-center">
+        <p className="text-slate-500 text-sm mb-4">Want to create a new company?</p>
+        <button
+          onClick={() => setCurrentStep('setup')}
+          className="px-6 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-white text-sm font-medium transition-colors border border-slate-700"
+        >
+          Deploy New Company
+        </button>
+      </div>
+    </div>
+  );
+
   const renderSetup = () => (
     <div className="max-w-2xl mx-auto">
       <h2 className="text-2xl font-bold text-white mb-2">Company Setup</h2>
@@ -941,13 +990,23 @@ const PayrollDashboard = ({ account, setAccount, onNavigate, onDisconnect }) => 
           <button onClick={loadContractData} className="p-2 text-slate-400 hover:text-white transition-colors">
             <RefreshCw className="w-5 h-5" />
           </button>
-          <button
-            onClick={() => setCurrentStep('setup')}
-            className="px-3 py-1.5 bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/30 rounded-lg text-blue-400 hover:text-blue-300 transition-colors text-sm"
-            title="Deploy a new payroll contract"
-          >
-            Deploy New Contract
-          </button>
+          {companyList.length > 0 ? (
+            <button
+              onClick={() => setCurrentStep('selectCompany')}
+              className="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 border border-slate-600 rounded-lg text-white hover:text-blue-300 transition-colors text-sm flex items-center space-x-2"
+            >
+              <Users className="w-4 h-4" />
+              <span>Switch / New</span>
+            </button>
+          ) : (
+            <button
+              onClick={() => setCurrentStep('setup')}
+              className="px-3 py-1.5 bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/30 rounded-lg text-blue-400 hover:text-blue-300 transition-colors text-sm"
+              title="Deploy a new payroll contract"
+            >
+              Deploy New Contract
+            </button>
+          )}
           <div className="px-3 py-1.5 bg-slate-800/50 rounded-lg border border-slate-700">
             <span className="text-xs text-slate-400">Contract: </span>
             <span className="text-sm text-white font-mono">{companyContract?.slice(0, 6)}...{companyContract?.slice(-4)}</span>
@@ -2088,6 +2147,7 @@ const PayrollDashboard = ({ account, setAccount, onNavigate, onDisconnect }) => 
         {!account ? renderNotConnected() : (
           <>
             {currentStep === 'loading' && renderLoading()}
+            {currentStep === 'selectCompany' && renderSelectCompany()}
             {currentStep === 'setup' && renderSetup()}
             {currentStep === 'dashboard' && renderDashboard()}
             {currentStep === 'employees' && renderEmployeeManagement()}
