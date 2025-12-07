@@ -162,13 +162,13 @@ export const addEmployee = async (payrollAddress, employeeData, signer) => {
         switch (employeeData.currency) {
             case 'ETH':
                 // Use mETH (mock volatile token) instead of native ETH for testing
-                tokenAddress = '0x21431b508336D1380D398DEb89118127ff160503';
+                tokenAddress = '0x667E3c1507791e96A4AF670db14bE20c53267C2D';
                 break;
             case 'mUSDC':
                 tokenAddress = USDC_ADDRESS;
                 break;
             case 'mETH':
-                tokenAddress = '0x21431b508336D1380D398DEb89118127ff160503';
+                tokenAddress = '0x667E3c1507791e96A4AF670db14bE20c53267C2D';
                 break;
             default:
                 tokenAddress = USDC_ADDRESS;

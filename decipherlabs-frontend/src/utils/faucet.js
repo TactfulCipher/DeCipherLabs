@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 
 // Deployed on Base Sepolia Testnet
-export const FAUCET_ADDRESS = '0x5b848e0ed45012eE8Ee55b24De62c0BAb7176947';
+export const FAUCET_ADDRESS = '0x3BFC31Ce8A2B1E0e758AfCDaa33766335112016a';
 
 const FAUCET_ABI = [
     'function claimTokens() external',

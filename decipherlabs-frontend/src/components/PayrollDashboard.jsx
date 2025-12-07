@@ -49,7 +49,7 @@ const PayrollDashboard = ({ account, setAccount, onNavigate, onDisconnect }) => 
   const [uploadProgress, setUploadProgress] = useState({ current: 0, total: 0, status: '' });
 
   // Known test payroll
-  const KNOWN_TEST_PAYROLL = '0x00916F572B2101584B01655110EeAC4b1194DA98';
+  const KNOWN_TEST_PAYROLL = '0x44E9c30EE6C7b9f4c7c53A4D5FCaa3BB99A14Cf2';
   const TEST_OWNER = '0xBea138f19224adB24958DB663fc4830b276fdF9B';
 
   // Employee name helpers
