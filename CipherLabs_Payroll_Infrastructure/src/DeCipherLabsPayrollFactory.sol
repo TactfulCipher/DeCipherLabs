@@ -13,6 +13,7 @@ contract DeCipherLabsPayrollFactory is Ownable {
 
     // Minimal tracking
     mapping(address => bool) public isPayroll;
+    mapping(address => address[]) public companyPayrolls;
 
     constructor() Ownable(msg.sender) {
         // For testnet: Owner set in constructor
@@ -51,6 +52,13 @@ contract DeCipherLabsPayrollFactory is Ownable {
             revert("init-failed-unknown");
         }
         isPayroll[payrollAddr] = true;
+        companyPayrolls[companyOwner].push(payrollAddr);
+    }
+
+    function getCompanyPayrolls(
+        address owner
+    ) external view returns (address[] memory) {
+        return companyPayrolls[owner];
     }
 
     // Admin functions to update treasury and fee
