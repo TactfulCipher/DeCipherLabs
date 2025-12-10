@@ -83,10 +83,10 @@ const TestingGuidePage = ({ onNavigate }) => {
                         <div className="bg-purple-900/20 border border-purple-500/30 rounded-lg p-6">
                             <h3 className="text-xl font-semibold text-white mb-3">2. Test Tokens</h3>
                             <p className="text-slate-300 mb-2">
-                                Test tokens (mUSDC and mETH) are automatically sent to your payroll contract when you deploy it.
+                                Claim test tokens (mUSDC and mETH) using the built-in faucet feature.
                             </p>
                             <p className="text-sm text-slate-400">
-                                No need to request tokens separately!
+                                Click "Claim Test Tokens" in the app. 24-hour cooldown per address.
                             </p>
                         </div>
                     </div>

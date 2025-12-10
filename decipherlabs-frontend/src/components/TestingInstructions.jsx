@@ -39,20 +39,25 @@ const TestingInstructions = () => {
         <div className="space-y-4">
           <h3 className="text-lg font-semibold text-white">Acquiring Test Tokens</h3>
           <p className="text-slate-300">
-            When you deploy a company payroll, you automatically receive test tokens for immediate testing.
-            If you need additional tokens, you can:
+            Use the built-in faucet to claim test tokens. Click "Claim Test Tokens" in the app to receive:
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="bg-slate-800/30 rounded-lg p-4 border border-slate-700">
               <h4 className="font-medium text-white mb-2">MockStablecoin (mUSDC)</h4>
               <p className="text-sm text-slate-400">Used for stable portion of hedge vaults</p>
-              <p className="text-xs bg-green-900/20 text-green-400 p-2 rounded mt-2">Receive 100,000 mUSDC on deployment</p>
+              <p className="text-xs bg-green-900/20 text-green-400 p-2 rounded mt-2">Receive 1,000 mUSDC per claim</p>
             </div>
             <div className="bg-slate-800/30 rounded-lg p-4 border border-slate-700">
               <h4 className="font-medium text-white mb-2">MockVolatileToken (mETH)</h4>
               <p className="text-sm text-slate-400">Used for volatile portion of hedge vaults</p>
-              <p className="text-xs bg-yellow-900/20 text-yellow-400 p-2 rounded mt-2">Receive 50 mETH on deployment</p>
+              <p className="text-xs bg-yellow-900/20 text-yellow-400 p-2 rounded mt-2">Receive 10 mETH per claim</p>
             </div>
+          </div>
+          <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-4 mt-4">
+            <p className="text-blue-300 flex items-start space-x-2">
+              <AlertCircle className="w-5 h-5 mt-0.5 flex-shrink-0" />
+              <span>Faucet has a 24-hour cooldown per address. Plan your testing accordingly.</span>
+            </p>
           </div>
         </div>
       )
@@ -67,7 +72,7 @@ const TestingInstructions = () => {
           <p className="text-slate-300">
             The Phase 1 MVP includes Volatility Hedge Vaults. Here's how to test them:
           </p>
-          
+
           <div className="space-y-3">
             <div className="flex items-start space-x-3">
               <div className="bg-blue-500/20 p-2 rounded-full mt-1">
@@ -78,7 +83,7 @@ const TestingInstructions = () => {
                 <p className="text-sm text-slate-400">Add an employee to your payroll</p>
               </div>
             </div>
-            
+
             <div className="flex items-start space-x-3">
               <div className="bg-blue-500/20 p-2 rounded-full mt-1">
                 <span className="text-blue-400 font-bold text-xs">2</span>
@@ -90,7 +95,7 @@ const TestingInstructions = () => {
                 </p>
               </div>
             </div>
-            
+
             <div className="flex items-start space-x-3">
               <div className="bg-blue-500/20 p-2 rounded-full mt-1">
                 <span className="text-blue-400 font-bold text-xs">3</span>
@@ -103,7 +108,7 @@ const TestingInstructions = () => {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-gradient-to-r from-purple-900/30 to-blue-900/30 border border-purple-500/30 rounded-lg p-4">
             <h4 className="font-bold text-purple-300 mb-2">Risk Level Examples:</h4>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -131,7 +136,7 @@ const TestingInstructions = () => {
       content: (
         <div className="space-y-4">
           <h3 className="text-lg font-semibold text-white">Additional Testing Features</h3>
-          
+
           <div className="space-y-3">
             <div className="bg-slate-800/30 rounded-lg p-4 border border-slate-700">
               <h4 className="font-medium text-white flex items-center space-x-2">
@@ -143,7 +148,7 @@ const TestingInstructions = () => {
                 the advance system works correctly with the hedge vault functionality.
               </p>
             </div>
-            
+
             <div className="bg-slate-800/30 rounded-lg p-4 border border-slate-700">
               <h4 className="font-medium text-white flex items-center space-x-2">
                 <Clock className="w-4 h-4" />
@@ -154,7 +159,7 @@ const TestingInstructions = () => {
                 payments are scheduled correctly.
               </p>
             </div>
-            
+
             <div className="bg-slate-800/30 rounded-lg p-4 border border-slate-700">
               <h4 className="font-medium text-white flex items-center space-x-2">
                 <CheckCircle className="w-4 h-4" />
@@ -188,11 +193,10 @@ const TestingInstructions = () => {
             <button
               key={step.id}
               onClick={() => setActiveTab(step.id)}
-              className={`px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors ${
-                activeTab === step.id
+              className={`px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors ${activeTab === step.id
                   ? 'bg-blue-600 text-white'
                   : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
-              }`}
+                }`}
             >
               <step.icon className="w-4 h-4" />
               <span>{step.title}</span>
@@ -207,11 +211,11 @@ const TestingInstructions = () => {
         <div className="mt-8 bg-gradient-to-r from-green-900/20 to-blue-900/20 border border-green-500/20 rounded-xl p-6">
           <h3 className="text-xl font-bold text-white mb-3">Ready to Test?</h3>
           <p className="text-slate-300 mb-4">
-            With your payroll deployed and test tokens received, 
+            With your payroll deployed and test tokens received,
             you can now begin testing all Phase 1 features including the Volatility Hedge Vaults.
           </p>
           <p className="text-slate-400 text-sm">
-            Remember to always test in a safe environment first. These contracts are still in development 
+            Remember to always test in a safe environment first. These contracts are still in development
             and should not be used with real funds.
           </p>
         </div>
